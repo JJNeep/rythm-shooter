@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://daucs1d7nmmo4"]
+
+[ext_resource type="Script" uid="uid://d4fw4symujma4" path="res://gun.gd" id="1_vk1bi"]
+[ext_resource type="Resource" uid="uid://df8h3aefxmb3x" path="res://DefaultGun.tres" id="2_dk5gl"]
+
+[node name="Gun" type="Node3D" unique_id=1099869119]
+script = ExtResource("1_vk1bi")
+current_gun = ExtResource("2_dk5gl")

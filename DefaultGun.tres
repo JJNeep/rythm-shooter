@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="GunResource" format=3 uid="uid://df8h3aefxmb3x"]
+
+[ext_resource type="PackedScene" uid="uid://scoj7uok7tmq" path="res://deagle.tscn" id="1_fhwxl"]
+[ext_resource type="Script" uid="uid://noor6p6kmpg3" path="res://gun_resource.gd" id="2_wpf6t"]
+
+[resource]
+script = ExtResource("2_wpf6t")
+gun_scene = ExtResource("1_fhwxl")
+metadata/_custom_type_script = "uid://noor6p6kmpg3"
