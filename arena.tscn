@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" uid="uid://0bxxtdrmcvm5" path="res://player.tscn" id="2_player"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat_arena"]
+sky_top_color = Color(0.07, 0.06, 0.12, 1)
+sky_horizon_color = Color(0.2, 0.12, 0.24, 1)
+ground_bottom_color = Color(0.03, 0.03, 0.05, 1)
+ground_horizon_color = Color(0.2, 0.12, 0.24, 1)
+
+[sub_resource type="Sky" id="Sky_arena"]
+sky_material = SubResource("SkyMat_arena")
+
+[sub_resource type="Environment" id="Env_arena"]
+background_mode = 2
+sky = SubResource("Sky_arena")
+ambient_light_source = 2
+ambient_light_color = Color(0.52, 0.47, 0.62, 1)
+ambient_light_energy = 0.45
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.55
+glow_bloom = 0.15
+
+[sub_resource type="BoxMesh" id="FloorMesh_arena"]
+size = Vector3(70, 1, 70)
+
+[sub_resource type="BoxShape3D" id="FloorShape_arena"]
+size = Vector3(70, 1, 70)
+
+[node name="Arena" type="Node3D" groups=["world"]]
+script = ExtResource("1_arena")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_arena")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 14, 0)
+light_energy = 0.55
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("FloorMesh_arena")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("FloorShape_arena")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)

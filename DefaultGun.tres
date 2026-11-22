@@ -1,10 +1,26 @@
-[gd_resource type="Resource" script_class="GunResource" format=3 uid="uid://df8h3aefxmb3x"]
+[gd_resource type="Resource" script_class="GunResource" load_steps=3 format=3 uid="uid://df8h3aefxmb3x"]
 
 [ext_resource type="PackedScene" uid="uid://scoj7uok7tmq" path="res://deagle.tscn" id="1_fhwxl"]
 [ext_resource type="Script" uid="uid://noor6p6kmpg3" path="res://gun_resource.gd" id="2_wpf6t"]
 
 [resource]
 script = ExtResource("2_wpf6t")
-fire_mode = 1
+gun_name = "Deagle"
+fire_mode = 0
 gun_scene = ExtResource("1_fhwxl")
+fire_interval_beats = 1.0
+perfect_window = 0.07
+great_window = 0.14
+good_window = 0.22
+max_hold = 0.1
+lock_range = 60.0
+lock_angle_deg = 40.0
+miss_at_good_edge = 1.3
+miss_curve = 2.5
+max_miss = 4.0
+damage = 100.0
+range_metres = 200.0
+max_magazine = 12
+reload_time = 1.5
+infinite_ammo = true
 metadata/_custom_type_script = "uid://noor6p6kmpg3"

@@ -11,9 +11,14 @@ config_version=5
 [application]
 
 config/name="Rythm Shooter"
-run/main_scene="res://test.tscn"
+run/main_scene="res://arena.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Conductor="*res://conductor.gd"
+Score="*res://score.gd"
 
 [input]
 
@@ -55,8 +60,16 @@ scope={
 
 [physics]
 
+common/physics_ticks_per_second=120
 3d/physics_engine="Jolt Physics"
 
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+
+[shader_globals]
+
+beat_pulse={
+"type": "float",
+"value": 0.0
+}
