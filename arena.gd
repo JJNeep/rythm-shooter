@@ -32,8 +32,11 @@ func _ready() -> void:
 	# Children run _ready before their parent, so the player (and its gun)
 	# already exist by the time we get here.
 	var player = get_node_or_null("Player")
-	if player and hud.ring:
-		hud.ring.gun = player.gun
+	if player:
+		if hud.ring:
+			hud.ring.gun = player.gun
+		hud.bind_player(player)
+		hud.set_status("PRACTICE RANGE")
 
 	Conductor.start(load(SONG_PATH))
 

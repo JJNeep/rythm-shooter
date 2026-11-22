@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="GunResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://noor6p6kmpg3" path="res://gun_resource.gd" id="1_gres"]
+
+[resource]
+script = ExtResource("1_gres")
+gun_name = "Rocket Launcher"
+fire_mode = 0
+weapon_kind = 1
+projectile_speed = 46.0
+blast_radius = 5.5
+grid_beats = 1.0
+perfect_ms = 36.0
+great_ms = 68.0
+good_ms = 100.0
+max_hold = 0.1
+lock_range = 70.0
+lock_angle_deg = 30.0
+miss_at_good_edge = 2.2
+miss_curve = 2.0
+max_miss = 6.0
+damage = 150.0
+range_metres = 200.0
+max_magazine = 6
+reload_time = 2.0
+infinite_ammo = true
+metadata/_custom_type_script = "uid://noor6p6kmpg3"

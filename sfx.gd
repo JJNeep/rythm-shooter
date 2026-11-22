@@ -51,3 +51,33 @@ static func shot() -> AudioStreamWAV:
 		var s: float = (crack * 0.5 + body * 0.7) * 0.85
 		data.encode_s16(i * 2, int(clampf(s, -1.0, 1.0) * 32767.0))
 	return _wav(data, sr)
+
+
+## A looping metronome track at an exact BPM, for the calibration screen.
+##
+## At 44100 Hz and 140 BPM a beat is exactly 18900 samples (44100 * 3/7), so a
+## whole number of beats loops sample-perfectly and the click phase stays
+## continuous across the loop point. That is what lets calibration measure tap
+## error as a plain modulo of the playback position, with no beat bookkeeping.
+static func click_track(bpm: float = 140.0, beats: int = 8, beats_per_bar: int = 4) -> AudioStreamWAV:
+	var sr := 44100
+	var per_beat := int(round((60.0 / bpm) * float(sr)))
+	var n := per_beat * beats
+	var data := PackedByteArray()
+	data.resize(n * 2)
+
+	var click_len := mini(int(0.04 * float(sr)), per_beat)
+	for b in beats:
+		var accent: bool = (b % beats_per_bar) == 0
+		var freq: float = 2200.0 if accent else 1400.0
+		var vol: float = 0.9 if accent else 0.5
+		for i in click_len:
+			var t := float(i) / float(sr)
+			var s: float = sin(TAU * freq * t) * exp(-t * 120.0) * vol
+			data.encode_s16((b * per_beat + i) * 2, int(clampf(s, -1.0, 1.0) * 32767.0))
+
+	var w := _wav(data, sr)
+	w.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	w.loop_begin = 0
+	w.loop_end = n
+	return w

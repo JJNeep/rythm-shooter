@@ -6,9 +6,6 @@
 ## Ultrakill mostly explodes its enemies too.
 extends StaticBody3D
 
-const GIB_GROUP := "gib"
-const GIB_CAP := 90          # across the whole scene, oldest culled first
-
 @export var max_health: float = 70.0
 @export var respawn_after: float = 2.0
 @export var gib_count: int = 11
@@ -83,7 +80,8 @@ func _die(dir: Vector3, grade: int) -> void:
 
 	# grade 0 (PERFECT) gets the full kick, 3 (WHIFF) the least.
 	var quality := 1.0 - clampf(float(grade) / 3.0, 0.0, 1.0)
-	_spawn_gibs(dir, lerpf(kick_min, kick_max, quality))
+	Gibs.burst(get_tree().current_scene, global_position, dir,
+		lerpf(kick_min, kick_max, quality), base_colour, gib_count)
 
 	await get_tree().create_timer(respawn_after).timeout
 	if not is_inside_tree():
@@ -95,59 +93,3 @@ func _die(dir: Vector3, grade: int) -> void:
 		_mesh.visible = true
 	if _shape:
 		_shape.disabled = false
-
-
-func _spawn_gibs(dir: Vector3, power: float) -> void:
-	var world := get_tree().current_scene
-	if not world:
-		return
-
-	# Keep the total bounded. Settled bodies are cheap but constraint-free
-	# chunks still cost broadphase, and this scene respawns forever.
-	var existing := get_tree().get_nodes_in_group(GIB_GROUP)
-	var over := existing.size() + gib_count - GIB_CAP
-	for i in maxi(over, 0):
-		if i < existing.size():
-			existing[i].queue_free()
-
-	var flat := Vector3(dir.x, 0.0, dir.z)
-	flat = flat.normalized() if flat.length() > 0.01 else Vector3.FORWARD
-
-	for i in gib_count:
-		var s := randf_range(0.10, 0.26)
-		var size := Vector3(s, s * randf_range(0.7, 1.8), s * randf_range(0.7, 1.3))
-
-		var box := BoxMesh.new()
-		box.size = size
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = base_colour.darkened(randf_range(0.0, 0.45))
-		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		var mi := MeshInstance3D.new()
-		mi.mesh = box
-		mi.material_override = mat
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-
-		var shape := BoxShape3D.new()
-		shape.size = size
-		var cs := CollisionShape3D.new()
-		cs.shape = shape
-
-		var rb := RigidBody3D.new()
-		rb.mass = 0.35
-		rb.add_to_group(GIB_GROUP)
-		rb.add_child(mi)
-		rb.add_child(cs)
-		world.add_child(rb)
-
-		rb.global_position = global_position + Vector3(
-			randf_range(-0.3, 0.3), randf_range(-0.7, 0.8), randf_range(-0.3, 0.3))
-		var kick := flat * power \
-			+ Vector3(randf_range(-3.0, 3.0), randf_range(2.0, 7.0), randf_range(-3.0, 3.0))
-		rb.apply_central_impulse(kick * rb.mass)
-		rb.angular_velocity = Vector3(
-			randf_range(-14.0, 14.0), randf_range(-14.0, 14.0), randf_range(-14.0, 14.0))
-
-		var tw := rb.create_tween()
-		tw.tween_interval(3.0)
-		tw.tween_property(mat, "albedo_color:a", 0.0, 1.2)
-		tw.tween_callback(rb.queue_free)

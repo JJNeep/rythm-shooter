@@ -28,16 +28,31 @@ func _draw() -> void:
 	if not Conductor.running:
 		return
 
-	var ph := Conductor.beat_phase()
+	# Follow the gun's grid, not the beat. On an eighth-note grid the ring has
+	# to contract twice per beat, or the offbeats are playable but invisible.
+	var grid := 1.0
+	if gun and gun.current_gun:
+		grid = maxf(gun.current_gun.grid_beats, 0.01)
+
+	var slot_pos := Conductor.beat_pos() / grid
+	var ph := fposmod(slot_pos, 1.0)
 	var flash := pow(1.0 - ph, 6.0)
 
-	# --- approach ring: lands on the inner ring exactly on the beat ---
-	draw_arc(c, lerpf(R_OUTER, R_INNER, ph), 0.0, TAU, 48,
-		Color(1, 1, 1, 0.18 + 0.45 * ph), 2.0, true)
+	# Downbeats get gold and a wider approach, offbeats blue and a tighter one,
+	# so you can still feel the bar through the subdivision.
+	var on_beat := true
+	if gun and gun.current_gun:
+		on_beat = gun.slot_is_on_beat(ceilf(slot_pos))
+	var tint := Color(1.0, 0.93, 0.35) if on_beat else Color(0.45, 0.80, 1.00)
+	var outer := R_OUTER if on_beat else R_OUTER * 0.72
 
-	# --- inner reference ring, pops on the beat ---
+	# --- approach ring: lands on the inner ring exactly on the next slot ---
+	draw_arc(c, lerpf(outer, R_INNER, ph), 0.0, TAU, 48,
+		Color(tint.r, tint.g, tint.b, 0.16 + 0.42 * ph), 2.0, true)
+
+	# --- inner reference ring, pops on the slot ---
 	draw_arc(c, R_INNER, 0.0, TAU, 48,
-		Color(1.0, 0.93, 0.35, 0.30 + 0.70 * flash), 2.0 + 2.5 * flash, true)
+		Color(tint.r, tint.g, tint.b, 0.30 + 0.70 * flash), 2.0 + 2.5 * flash, true)
 
 	# --- lock bracket, so the aim assist never feels arbitrary ---
 	if gun and gun.locked_target and is_instance_valid(gun.locked_target):

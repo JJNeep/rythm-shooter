@@ -2,24 +2,41 @@ class_name GunResource
 extends Resource
 
 enum FireMode { SINGLE, AUTOMATIC }
+enum Kind { HITSCAN, ROCKET }
 
 @export_group("General")
 @export var gun_name: String = "Default Gun"
 @export var fire_mode: FireMode = FireMode.SINGLE
+@export var weapon_kind: Kind = Kind.HITSCAN
 @export var gun_scene: PackedScene
 
-@export_group("Rhythm")
-## The beat grid IS the fire-rate limiter -- one shot per slot, no timers.
-## 1.0 = quarter notes, 0.5 = eighths, 0.25 = sixteenths.
-@export var fire_interval_beats: float = 1.0
+@export_group("Rocket")
+## Only used when weapon_kind is ROCKET.
+@export var projectile_speed: float = 46.0
+@export var blast_radius: float = 5.5
 
-## Grading windows, as fractions of the slot interval rather than fixed
-## milliseconds. Expressing them this way means a sixteenth-note gun gets
-## brutally tight windows automatically, which is the right difficulty curve.
-## None of these may reach 0.5 or neighbouring slots would overlap.
-@export_range(0.01, 0.45) var perfect_window: float = 0.07
-@export_range(0.01, 0.45) var great_window: float = 0.14
-@export_range(0.01, 0.45) var good_window: float = 0.22
+@export_group("Rhythm")
+## The subdivision you are allowed to play on. One shot per slot, so this
+## doubles as the fire-rate limit.
+##   1.0  = quarter notes only, downbeats
+##   0.5  = eighths, so the offbeat between each pair of beats counts too
+##   0.25 = sixteenths
+@export var grid_beats: float = 0.5
+
+## Grading windows in MILLISECONDS -- absolute, not a fraction of the slot.
+##
+## Fractions were a mistake here. Halving the subdivision to allow offbeats
+## also halved every window, so adding valid slots would have made the timing
+## HARDER rather than more forgiving. Real rhythm games use fixed millisecond
+## windows for exactly this reason.
+##
+## Each is clamped to WINDOW_CAP of the slot spacing at runtime so neighbouring
+## slots can never overlap, which is what compresses them on tight
+## subdivisions -- a sixteenth-note gun still gets brutal windows, but because
+## the slots are genuinely close together rather than as an accident.
+@export var perfect_ms: float = 32.0
+@export var great_ms: float = 62.0
+@export var good_ms: float = 95.0
 
 ## Longest we will delay an early shot so it lands exactly on the beat.
 ## Past about 100ms the player starts to feel it as input lag.

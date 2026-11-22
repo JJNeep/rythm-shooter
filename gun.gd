@@ -8,6 +8,7 @@ class_name Gun
 extends Node3D
 
 signal shot_fired(grade: int, err_sec: float, did_hit: bool)
+signal weapon_changed(index: int, weapon: GunResource)
 
 enum Grade { PERFECT, GREAT, GOOD, WHIFF }
 
@@ -19,36 +20,156 @@ const GRADE_COLOURS: Array[Color] = [
 	Color(1.00, 0.30, 0.34),   # WHIFF   - red
 ]
 
+## A grading window may never exceed this fraction of the slot spacing, or the
+## windows of adjacent slots would overlap and a single click could grade as
+## two different things.
+const WINDOW_CAP := 0.45
+
+## Used when `weapons` is left empty. Slot order is the 1/2 key order.
+const DEFAULT_LOADOUT: Array[String] = [
+	"res://DefaultGun.tres",
+	"res://RocketLauncher.tres",
+]
+
+## The active weapon. Kept as its own property so everything downstream still
+## reads current_gun and knows nothing about the loadout.
 @export var current_gun: GunResource
 
+## Weapons available, in slot order. Falls back to [current_gun] if left empty.
+@export var weapons: Array[GunResource] = []
+
+var weapon_index: int = 0
 var current_ammo: int = 0
 var locked_target: Node3D = null
 
 var _muzzle: Node3D
-var _last_slot: float = -INF
+var _models: Array[Node3D] = []
+var _muzzles: Array[Node3D] = []
+## Per weapon, because the two weapons sit on different grids so a slot index
+## means different things to each. Swapping therefore lets you fit a rocket
+## between two deagle eighths -- a weapon-swap cancel, which is very much the
+## genre and is being left in deliberately.
+var _last_slots: Array[float] = []
 var _pending: bool = false
 var _pending_at: float = 0.0
 var _pending_err: float = 0.0
+var _pending_on_beat: bool = true
 var _audio: AudioStreamPlayer3D
 
 
 func _ready() -> void:
-	current_ammo = current_gun.max_magazine
-
 	# The original code instanced current_gun.gun_scene here while gun.tscn ALSO
 	# had the Deagle as a child, so two models were stacked and get_child(0) was
 	# grabbing whichever happened to come first. Only build one if the scene has
 	# not already given us a model to work with.
-	if find_child("Spawner", true, false) == null and current_gun.gun_scene:
+	if find_child("Spawner", true, false) == null and current_gun and current_gun.gun_scene:
 		add_child(current_gun.gun_scene.instantiate())
 
 	var m := find_child("Spawner", true, false)
-	_muzzle = m as Node3D if m is Node3D else self
+	var deagle_muzzle: Node3D = m as Node3D if m is Node3D else self
+	var deagle_model := find_child("Deagle", false, false) as Node3D
+
+	# Loaded by path rather than wired into gun.tscn as a typed-array export,
+	# which serialises awkwardly for custom resource types. Override `weapons`
+	# in the inspector and this is skipped.
+	if weapons.is_empty():
+		for path in DEFAULT_LOADOUT:
+			if ResourceLoader.exists(path):
+				var w := load(path) as GunResource
+				if w != null:
+					weapons.append(w)
+	if weapons.is_empty() and current_gun:
+		weapons = [current_gun]
+
+	_models.resize(weapons.size())
+	_muzzles.resize(weapons.size())
+	_last_slots.resize(weapons.size())
+	_last_slots.fill(-INF)
+
+	for i in weapons.size():
+		if weapons[i].weapon_kind == GunResource.Kind.ROCKET:
+			var rl := _build_launcher(deagle_muzzle)
+			_models[i] = rl
+			_muzzles[i] = rl.get_node("Muzzle") as Node3D
+		else:
+			_models[i] = deagle_model
+			_muzzles[i] = deagle_muzzle
 
 	_audio = AudioStreamPlayer3D.new()
-	_audio.stream = current_gun.fire_sound if current_gun.fire_sound else Sfx.shot()
 	_audio.unit_size = 8.0
 	add_child(_audio)
+
+	swap_to(0)
+
+
+func swap_to(index: int) -> void:
+	if weapons.is_empty():
+		return
+	weapon_index = clampi(index, 0, weapons.size() - 1)
+	current_gun = weapons[weapon_index]
+	current_ammo = current_gun.max_magazine
+
+	var mz := _muzzles[weapon_index]
+	_muzzle = mz if mz != null else self
+
+	# The deagle and the launcher share the scene, so hide rather than rebuild.
+	for j in _models.size():
+		if _models[j] != null:
+			_models[j].visible = (j == weapon_index)
+
+	_audio.stream = current_gun.fire_sound if current_gun.fire_sound else Sfx.shot()
+	# Same sample, dropped an octave: cheap way to make the launcher sound heavy.
+	_audio.pitch_scale = 0.62 if current_gun.weapon_kind == GunResource.Kind.ROCKET else 1.0
+	weapon_changed.emit(weapon_index, current_gun)
+
+
+func next_weapon(step: int = 1) -> void:
+	if weapons.size() > 1:
+		swap_to(posmod(weapon_index + step, weapons.size()))
+
+
+## Built in code because there is no launcher model in the project. Its muzzle
+## is placed exactly where the deagle's already is, so swapping weapons does
+## not make the shot origin jump around on screen.
+func _build_launcher(ref_muzzle: Node3D) -> Node3D:
+	var root := Node3D.new()
+	root.name = "RocketLauncher"
+	add_child(root)
+
+	var local := Vector3.ZERO
+	if ref_muzzle != null and ref_muzzle != self and is_inside_tree():
+		local = global_transform.affine_inverse() * ref_muzzle.global_position
+
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.21, 0.19, 0.23)
+	mat.metallic = 0.6
+	mat.roughness = 0.45
+
+	var tube := CylinderMesh.new()
+	tube.top_radius = 0.075
+	tube.bottom_radius = 0.085
+	tube.height = 0.80
+	tube.radial_segments = 12
+	var tube_mi := MeshInstance3D.new()
+	tube_mi.mesh = tube
+	tube_mi.material_override = mat
+	tube_mi.rotation_degrees = Vector3(-90.0, 0.0, 0.0)   # +Y round onto -Z
+	tube_mi.position = local + Vector3(0.0, 0.0, 0.40)
+	root.add_child(tube_mi)
+
+	var grip := BoxMesh.new()
+	grip.size = Vector3(0.07, 0.18, 0.13)
+	var grip_mi := MeshInstance3D.new()
+	grip_mi.mesh = grip
+	grip_mi.material_override = mat
+	grip_mi.position = local + Vector3(0.0, -0.14, 0.62)
+	root.add_child(grip_mi)
+
+	var muzzle := Node3D.new()
+	muzzle.name = "Muzzle"
+	muzzle.position = local
+	root.add_child(muzzle)
+	return root
 
 
 func _process(_delta: float) -> void:
@@ -58,7 +179,7 @@ func _process(_delta: float) -> void:
 	# Conductor audio clock rather than a Timer, so hit-stop cannot shift it.
 	if _pending and Conductor.clock() >= _pending_at:
 		_pending = false
-		_fire(_pending_err)
+		_fire(_pending_err, _pending_on_beat)
 
 	if current_gun.fire_mode == GunResource.FireMode.AUTOMATIC \
 			and Input.is_action_pressed("shoot"):
@@ -76,19 +197,20 @@ func try_shoot(held: bool = false) -> void:
 	if _pending:
 		return
 
-	var iv: float = current_gun.fire_interval_beats
+	var iv: float = current_gun.grid_beats
 	var b := Conductor.beat_pos()
 	var slot := Conductor.nearest_slot(iv, b)
-	if slot == _last_slot:
-		return                                  # one shot per slot
-	_last_slot = slot
+	if slot == _last_slots[weapon_index]:
+		return                                  # one shot per slot, per weapon
+	_last_slots[weapon_index] = slot
 
 	var err := (b - slot * iv) * Conductor.sec_per_beat
+	var on_beat := slot_is_on_beat(slot)
 
 	# Held auto-fire never reaches the top grades. Tapping on the beat earns the
 	# aura; holding the button is spray-and-pray.
 	if held:
-		err = maxf(absf(err), current_gun.great_window * _slot_seconds())
+		err = maxf(absf(err), _windows().y)
 
 	if err < 0.0 and -err <= current_gun.max_hold:
 		# Early: hold the shot so muzzle flash, report and bullet all land
@@ -97,35 +219,52 @@ func try_shoot(held: bool = false) -> void:
 		_pending = true
 		_pending_at = Conductor.slot_time(iv, slot)
 		_pending_err = err
+		_pending_on_beat = on_beat
 	else:
-		_fire(err)
+		_fire(err, on_beat)
 
 
 func _slot_seconds() -> float:
-	return current_gun.fire_interval_beats * Conductor.sec_per_beat
+	return current_gun.grid_beats * Conductor.sec_per_beat
 
 
-func _grade_of(frac: float) -> Grade:
-	if frac <= current_gun.perfect_window:
+## Is this slot a downbeat (a whole beat), or one of the offbeats between them?
+func slot_is_on_beat(slot: float) -> bool:
+	var frac := fposmod(slot * current_gun.grid_beats, 1.0)
+	return minf(frac, 1.0 - frac) < 0.001
+
+
+## The three grading windows in seconds, clamped so neighbouring slots cannot
+## overlap. Returned as a Vector3 of (perfect, great, good).
+func _windows() -> Vector3:
+	var cap := _slot_seconds() * WINDOW_CAP
+	var p := minf(current_gun.perfect_ms * 0.001, cap)
+	var g := maxf(minf(current_gun.great_ms * 0.001, cap), p)
+	var o := maxf(minf(current_gun.good_ms * 0.001, cap), g)
+	return Vector3(p, g, o)
+
+
+func _grade_of(err_abs: float, w: Vector3) -> Grade:
+	if err_abs <= w.x:
 		return Grade.PERFECT
-	if frac <= current_gun.great_window:
+	if err_abs <= w.y:
 		return Grade.GREAT
-	if frac <= current_gun.good_window:
+	if err_abs <= w.z:
 		return Grade.GOOD
 	return Grade.WHIFF
 
 
-func _fire(err_sec: float) -> void:
+func _fire(err_sec: float, on_beat: bool = true) -> void:
 	if not current_gun.infinite_ammo:
 		current_ammo -= 1
 
-	var slot_sec := _slot_seconds()
-	var grade := _grade_of(absf(err_sec) / slot_sec)
+	var w := _windows()
+	var grade := _grade_of(absf(err_sec), w)
 
 	# Normalised against the GOOD boundary, so 1.0 means "right on the edge".
 	# Deliberately not clamped at the top: a really bad click should spray wider
 	# still, which is the mechanic working as advertised.
-	var norm := err_sec / (current_gun.good_window * slot_sec)
+	var norm := err_sec / w.z
 
 	var cam := get_viewport().get_camera_3d()
 	var from: Vector3 = _muzzle.global_position
@@ -139,6 +278,17 @@ func _fire(err_sec: float) -> void:
 		aim_point = from - global_basis.z * 30.0
 
 	var dir := _aim_dir(from, aim_point, norm)
+
+	if current_gun.weapon_kind == GunResource.Kind.ROCKET:
+		_launch_rocket(from, dir, grade, err_sec, on_beat)
+		_muzzle_flash(grade)
+		if _audio.stream:
+			_audio.play()
+		# Scoring is deferred to the blast -- a rocket has not hit anything yet,
+		# and the grade popup arriving WITH the explosion is the better feel.
+		shot_fired.emit(grade, err_sec, false)
+		return
+
 	var hit := _hitscan(from, dir)
 
 	var did_hit := false
@@ -160,7 +310,7 @@ func _fire(err_sec: float) -> void:
 	if grade == Grade.PERFECT and did_hit:
 		_hit_stop()
 
-	Score.register(grade, err_sec, did_hit)
+	Score.register(grade, err_sec, did_hit, on_beat)
 	shot_fired.emit(grade, err_sec, did_hit)
 
 
@@ -190,6 +340,18 @@ func _aim_dir(from: Vector3, target_point: Vector3, norm: float) -> Vector3:
 	var lateral := signf(norm) * miss
 	var vertical := randf_range(-0.3, 0.3) * miss
 	return (to_t + right * lateral + up * vertical).normalized()
+
+
+func _launch_rocket(from: Vector3, dir: Vector3, grade: int,
+		err_sec: float, on_beat: bool) -> void:
+	var world := get_tree().current_scene
+	if world == null:
+		return
+	var r := Rocket.new()
+	world.add_child(r)
+	# launch() after add_child, so it can orient itself in world space.
+	r.launch(from, dir, current_gun.projectile_speed, current_gun.blast_radius,
+		current_gun.damage, grade, err_sec, on_beat, _exclusions())
 
 
 func _exclusions() -> Array[RID]:
