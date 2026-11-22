@@ -382,3 +382,6 @@ bones/12/scale = Vector3(1, 1, 1)
 mesh = SubResource("ArrayMesh_1wlud")
 skin = SubResource("Skin_mfhnp")
 skeleton = NodePath("..")
+
+[node name="Spawner" type="Node3D" parent="." unique_id=499566937 groups=["bullet_spawner"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.061058268, 0.08410446, -0.31605682)

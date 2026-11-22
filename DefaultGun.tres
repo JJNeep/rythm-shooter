@@ -5,5 +5,6 @@
 
 [resource]
 script = ExtResource("2_wpf6t")
+fire_mode = 1
 gun_scene = ExtResource("1_fhwxl")
 metadata/_custom_type_script = "uid://noor6p6kmpg3"

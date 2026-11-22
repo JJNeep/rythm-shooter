@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://cin8m0xdurmyr"]
+
+[ext_resource type="Script" uid="uid://kj7g2pqtekx6" path="res://bullet.gd" id="1_v7oki"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rtl8c"]
+albedo_color = Color(0.25418088, 0.116931506, 0, 1)
+metallic = 1.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_v7oki"]
+material = SubResource("StandardMaterial3D_rtl8c")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_v8qja"]
+radius = 0.1
+height = 0.2
+
+[node name="Bullet" type="RigidBody3D" unique_id=1066220931 groups=["bullet"]]
+script = ExtResource("1_v7oki")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2008071309]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_v7oki")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=682800095]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_v8qja")

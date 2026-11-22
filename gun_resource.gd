@@ -13,7 +13,7 @@ enum FireMode { SINGLE, AUTOMATIC, BURST }
 @export var damage: float = 10.0
 @export var bullet_spread: float = 0.0
 @export var bullets_per_shot: int = 1
-@export var max_range: float = 100.0
+@export var shoot_speed: float = 1000
 
 @export_group("Ammo")
 @export var max_magazine: int = 12
