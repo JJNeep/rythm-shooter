@@ -1,0 +1,42 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://blocks/materials/finish.tres" id="1_meyxj"]
+[ext_resource type="Material" path="res://blocks/materials/finish_glass.tres" id="2_lfh8e"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_lgdup"]
+material = ExtResource("1_meyxj")
+size = Vector3(16, 0.25, 0.25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xkawj"]
+material = ExtResource("1_meyxj")
+size = Vector3(0.25, 9, 0.25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_a4cqg"]
+material = ExtResource("1_meyxj")
+size = Vector3(0.25, 9, 0.25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2d45e"]
+material = ExtResource("2_lfh8e")
+size = Vector3(16, 9, 0.08)
+
+[node name="Finish" type="Node3D" unique_id=1241777325 groups=["level_finish"]]
+
+[node name="Top" type="MeshInstance3D" parent="." unique_id=822926749]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_lgdup")
+
+[node name="Left" type="MeshInstance3D" parent="." unique_id=1537824413]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 4.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_xkawj")
+
+[node name="Right" type="MeshInstance3D" parent="." unique_id=201961794]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_a4cqg")
+
+[node name="Sheet" type="MeshInstance3D" parent="." unique_id=1475378462]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_2d45e")

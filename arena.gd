@@ -38,7 +38,7 @@ func _ready() -> void:
 		hud.bind_player(player)
 		hud.set_status("PRACTICE RANGE")
 
-	Conductor.start(load(SONG_PATH))
+	Conductor.start(load(SONG_PATH), true)
 
 
 func _process(_delta: float) -> void:

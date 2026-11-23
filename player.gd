@@ -1,29 +1,26 @@
 extends CharacterBody3D
 
-signal health_changed(health: float, max_health: float)
-signal died
-
 const SPEED := 14.0           # 5.0 was walking pace; this is a movement shooter
 const JUMP_VELOCITY := 6.2
 const GROUND_ACCEL := 140.0   # snappy on the floor
 const AIR_ACCEL := 32.0       # ... but momentum is preserved in the air, which
-							  # is what makes dashing off a ledge feel good
+							  # is what makes a blast jump feel like anything
 const DASH_MIN := 18.0        # dash speed for a badly timed dash
 const DASH_MAX := 42.0        # ... and for one right on the beat
 const DASH_TIME := 0.16
-
-const REGEN_DELAY := 3.0      # seconds without damage before health returns
-const REGEN_RATE := 9.0       # per second
+const MAX_FALL := 40.0        # terminal velocity, so a long drop stays readable
 
 @export var mouse_sensitivity: float = 0.002
-@export var max_health: float = 100.0
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var gun: Gun = $Head/Hand/Gun
 @onready var anim: AnimationPlayer = $Head/Hand/AnimationPlayer
 
-var health: float
+## Survival now lives in Score.energy rather than here. Health and energy were
+## two bars measuring the same thing, and Beat Saber's single bar -- which a
+## miss drains far faster than a hit refills -- is what turns clicking into a
+## decision instead of a reflex.
 var dead := false
 
 var _cam_base_y := 0.0
@@ -31,19 +28,28 @@ var _dash_left := 0.0
 var _dash_dir := Vector3.ZERO
 var _dash_speed := 0.0
 var _last_dash_slot := -INF
-var _since_damage := 99.0
 var _hurt := 0.0
+var _kick := 0.0
 
 
 func _ready() -> void:
 	add_to_group("player")           # the gun excludes us from its own raycasts
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Godot coalesces input events and delivers them once per frame by default,
+	# which puts a whole frame of slop on the timestamp a shot is graded with.
+	# At 60fps that is 16ms of a 32ms PERFECT window spent before the player has
+	# done anything wrong, and it gets worse the harder the scene is to draw.
+	Input.use_accumulated_input = false
 	_cam_base_y = camera.position.y
-	health = max_health
+	Score.run_failed.connect(_on_run_failed)
 	# The player scene ships its own crosshair; the HUD replaces it.
 	var old_ui := get_node_or_null("UI")
 	if old_ui:
 		old_ui.visible = false
+
+
+func _on_run_failed() -> void:
+	dead = true
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,7 +65,7 @@ func _input(event: InputEvent) -> void:
 		var mm := event as InputEventMouseMotion
 		rotate_y(-mm.relative.x * mouse_sensitivity)
 		head.rotate_x(-mm.relative.y * mouse_sensitivity)
-		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-85.0), deg_to_rad(85.0))
+		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-89.0), deg_to_rad(85.0))
 
 	# Shooting is timestamped HERE, not in _physics_process. At 60Hz physics the
 	# timestamp resolution would be 16.7ms -- a quarter of the whole grading
@@ -88,10 +94,34 @@ func _input(event: InputEvent) -> void:
 				gun.swap_to(1)
 			KEY_Q:
 				gun.next_weapon()
+			KEY_P:
+				Score.practice = not Score.practice
 			KEY_R:
 				_restart()
 			KEY_C:
 				get_tree().change_scene_to_file("res://calibration.tscn")
+			KEY_F:
+				_fix_timing()
+
+
+## One-key calibration from the run you are already in.
+##
+## The end-of-run tally has always reported how late or early you were; this
+## folds that straight into the saved offset, mid-run, using shots you have
+## already taken. It measures the real path -- this machine's audio, the mp3,
+## the chart, the frame rate -- rather than a click track in another scene, so
+## it is the more honest of the two and costs one keypress.
+func _fix_timing() -> void:
+	var hud := get_tree().get_first_node_in_group("hud")
+	var applied := Settings.apply_measured_bias()
+	if hud == null:
+		return
+	if is_zero_approx(applied):
+		hud.show_banner("NOT ENOUGH SHOTS",
+			"land about a dozen first, then press F  ·  C for the full screen")
+	else:
+		hud.show_banner("TIMING FIXED", "%+.0f ms applied  ·  now %+.0f ms total" % [
+			applied, Settings.audio_offset_ms])
 
 
 ## Movement is on the grid too. Dashing on the beat carries you much further,
@@ -118,16 +148,17 @@ func _try_dash() -> void:
 	_dash_left = DASH_TIME
 
 
-func take_damage(amount: float) -> void:
-	if dead:
-		return
-	health = maxf(health - amount, 0.0)
-	_since_damage = 0.0
+## Thrown by a rocket blast. Cancels the dash so a blast always wins over
+## whatever you were doing, which is what makes the launch feel decisive.
+func apply_blast(dir: Vector3, force: float) -> void:
+	_dash_left = 0.0
+	velocity += dir * force
+	velocity.y = minf(velocity.y, 34.0)
+	_kick = 1.0
+
+
+func on_hit() -> void:
 	_hurt = 1.0
-	health_changed.emit(health, max_health)
-	if health <= 0.0:
-		dead = true
-		died.emit()
 
 
 func _restart() -> void:
@@ -141,18 +172,13 @@ func _process(delta: float) -> void:
 	else:
 		camera.fov = lerpf(camera.fov, 75.0, delta * 20.0)
 
-	# A barely-there camera dip on each beat. Subtle on purpose -- enough to
-	# feel the pulse, not enough to fight your aim.
-	var pulse := pow(1.0 - Conductor.beat_phase(), 5.0) if Conductor.running else 0.0
-	camera.position.y = _cam_base_y - pulse * 0.025
+	_hurt = maxf(_hurt - delta * 2.2, 0.0)
+	_kick = maxf(_kick - delta * 3.0, 0.0)
 
-	# Regen out of contact, so the chase is tense rather than a death sentence
-	# the first time a runner clips you.
-	_since_damage += delta
-	_hurt = maxf(_hurt - delta * 2.5, 0.0)
-	if not dead and _since_damage > REGEN_DELAY and health < max_health:
-		health = minf(health + REGEN_RATE * delta, max_health)
-		health_changed.emit(health, max_health)
+	# A barely-there camera dip on each beat, plus a bigger one when something
+	# throws you. Subtle on purpose -- enough to feel, not enough to fight aim.
+	var pulse := pow(1.0 - Conductor.beat_phase(), 5.0) if Conductor.running else 0.0
+	camera.position.y = _cam_base_y - pulse * 0.025 - _kick * 0.12
 
 
 func _physics_process(delta: float) -> void:
@@ -160,6 +186,7 @@ func _physics_process(delta: float) -> void:
 
 	if not grounded:
 		velocity += get_gravity() * delta
+		velocity.y = maxf(velocity.y, -MAX_FALL)
 
 	if not dead and Input.is_action_pressed("jump") and grounded:
 		velocity.y = JUMP_VELOCITY

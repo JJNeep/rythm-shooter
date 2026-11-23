@@ -17,6 +17,8 @@ var speed: float = 46.0
 var blast_radius: float = 5.5
 ## How close an enemy has to get before the fuse trips.
 var proximity: float = 1.5
+## How hard the blast throws the player who fired it.
+var self_knockback: float = 27.0
 var damage: float = 140.0
 var grade: int = 0
 
@@ -138,6 +140,18 @@ func _explode(at: Vector3) -> void:
 		if n.has_method("take_damage"):
 			n.call("take_damage", damage * falloff, away, grade)
 			caught += 1
+
+	# Blast jump. No self-damage on purpose: the charge is already the cost,
+	# and adding damage on top would muddy the jump-or-kill decision that the
+	# whole weapon exists to pose.
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	if player != null and player.has_method("apply_blast"):
+		var d := player.global_position - at
+		var dist := d.length()
+		if dist <= blast_radius:
+			var away := d.normalized() if dist > 0.05 else Vector3.UP
+			var near := 1.0 - clampf(dist / blast_radius, 0.0, 1.0)
+			player.call("apply_blast", away, self_knockback * lerpf(0.4, 1.0, near))
 
 	_flash(world, at)
 	Gibs.burst(world, at, Vector3.UP, 6.0, BLAST_COLOUR, 6, 0.7)

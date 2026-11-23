@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://blocks/materials/floor.tres" id="1_l3bj0"]
+[ext_resource type="BoxMesh" path="res://blocks/materials/lane_strip_mesh.tres" id="2_as21o"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_d8iuf"]
+material = ExtResource("1_l3bj0")
+size = Vector3(16, 1, 24)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m5v13"]
+size = Vector3(16, 1, 24)
+
+[node name="Floor" type="StaticBody3D" unique_id=503778828]
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=2074734120]
+mesh = SubResource("BoxMesh_d8iuf")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=942266287]
+shape = SubResource("BoxShape3D_m5v13")
+
+[node name="Strips" type="Node3D" parent="." unique_id=1141869141]
+
+[node name="S1" type="MeshInstance3D" parent="Strips" unique_id=187446359]
+transform = Transform3D(15, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 6)
+cast_shadow = 0
+mesh = ExtResource("2_as21o")
+
+[node name="S2" type="MeshInstance3D" parent="Strips" unique_id=1336569093]
+transform = Transform3D(15, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0)
+cast_shadow = 0
+mesh = ExtResource("2_as21o")
+
+[node name="S3" type="MeshInstance3D" parent="Strips" unique_id=1392781534]
+transform = Transform3D(15, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -6)
+cast_shadow = 0
+mesh = ExtResource("2_as21o")
+
+[node name="S4" type="MeshInstance3D" parent="Strips" unique_id=1081819808]
+transform = Transform3D(15, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -12)
+cast_shadow = 0
+mesh = ExtResource("2_as21o")

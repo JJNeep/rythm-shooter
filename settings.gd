@@ -45,5 +45,28 @@ func set_offset_ms(ms: float, mark_calibrated: bool = true) -> void:
 	save_settings()
 
 
+## Fold the bias measured during actual play into the saved offset.
+##
+## The calibration screen measures a click track; this measures the thing you
+## are really playing -- the same decode, the same chart, the same frame timing
+## -- using shots you have already taken. So when a run feels late, the fix is
+## one keypress rather than a trip to another scene.
+##
+## Returns the correction applied in ms, or 0.0 if there were not enough shots
+## to trust. A handful of clicks is noise; this wants a sample.
+func apply_measured_bias(min_shots: int = Score.BIAS_MIN_SHOTS) -> float:
+	if Score.err_count < min_shots:
+		return 0.0
+	# Score counts a shot as LATE when it lands after its slot. Raising the
+	# offset tells the Conductor the music reached the player even later than
+	# that, which pulls the whole grid back under them.
+	var bias := Score.mean_error() * 1000.0
+	set_offset_ms(audio_offset_ms + bias)
+	# The old bias must go with it, or the readout keeps reporting the error
+	# that has just been corrected.
+	Score.clear_timing()
+	return bias
+
+
 func _apply() -> void:
 	Conductor.user_offset = audio_offset_ms * 0.001

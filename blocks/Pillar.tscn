@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://blocks/materials/raised.tres" id="1_7f87s"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_wwxss"]
+material = ExtResource("1_7f87s")
+size = Vector3(3, 6, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_exbco"]
+size = Vector3(3, 6, 3)
+
+[node name="Pillar" type="StaticBody3D" unique_id=1389854046]
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=1649872855]
+mesh = SubResource("BoxMesh_wwxss")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=744671200]
+shape = SubResource("BoxShape3D_exbco")

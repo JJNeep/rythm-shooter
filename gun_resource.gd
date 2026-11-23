@@ -15,6 +15,17 @@ enum Kind { HITSCAN, ROCKET }
 @export var projectile_speed: float = 46.0
 @export var blast_radius: float = 5.5
 
+## How hard the blast throws the shooter. This is the whole reason the rocket
+## is traversal equipment: aim at your feet and it launches you.
+@export var self_knockback: float = 27.0
+
+@export_group("Charges")
+## 0 means unlimited. Above 0, firing spends a charge and charges come back
+## one per `reload_beats` -- so the launcher is a budget measured in bars, and
+## every rocket is a decision between crossing a gap and clearing a crowd.
+@export var charges: int = 0
+@export var reload_beats: float = 4.0
+
 @export_group("Rhythm")
 ## The subdivision you are allowed to play on. One shot per slot, so this
 ## doubles as the fire-rate limit.

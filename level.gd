@@ -59,10 +59,12 @@ func _ready() -> void:
 		if _hud.ring:
 			_hud.ring.gun = _player.gun
 		_hud.bind_player(_player)
-		_player.died.connect(_on_player_died)
+	# Survival moved from player health to Score.energy, so failure is reported
+	# there now. This older procedural level is kept only as a sandbox.
+	Score.run_failed.connect(_on_player_died)
 
 	Conductor.beat.connect(_on_beat)
-	Conductor.start(load(SONG_PATH))
+	Conductor.start(load(SONG_PATH), true)
 
 	_hud.show_banner("GET MOVING", "click on the beat  ·  shift to dash")
 

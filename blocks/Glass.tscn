@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://blocks/materials/glass.tres" id="1_0kpff"]
+[ext_resource type="BoxMesh" path="res://blocks/materials/lane_strip_mesh.tres" id="2_ix4vv"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_m8kic"]
+material = ExtResource("1_0kpff")
+size = Vector3(10, 1, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6pjst"]
+size = Vector3(10, 1, 10)
+
+[node name="Glass" type="StaticBody3D" unique_id=619611102]
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=461841694]
+mesh = SubResource("BoxMesh_m8kic")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=372828885]
+shape = SubResource("BoxShape3D_6pjst")
+
+[node name="Strips" type="Node3D" parent="." unique_id=906215607]
+
+[node name="S1" type="MeshInstance3D" parent="Strips" unique_id=1827303192]
+transform = Transform3D(9, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -1)
+cast_shadow = 0
+mesh = ExtResource("2_ix4vv")

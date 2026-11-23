@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://ranged_enemy.gd" id="1_ranged"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ranged"]
+size = Vector3(1.1, 1.6, 1.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ranged"]
+size = Vector3(1.1, 1.6, 1.1)
+
+[node name="RangedEnemy" type="StaticBody3D" groups=["enemy", "gunner"]]
+script = ExtResource("1_ranged")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_ranged")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_ranged")

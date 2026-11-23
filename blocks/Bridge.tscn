@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://blocks/materials/bridge.tres" id="1_7mwjx"]
+[ext_resource type="BoxMesh" path="res://blocks/materials/lane_strip_mesh.tres" id="2_r530k"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_qdr78"]
+material = ExtResource("1_7mwjx")
+size = Vector3(5, 1, 24)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_52f0y"]
+size = Vector3(5, 1, 24)
+
+[node name="Bridge" type="StaticBody3D" unique_id=921957566]
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=443875949]
+mesh = SubResource("BoxMesh_qdr78")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2015112043]
+shape = SubResource("BoxShape3D_52f0y")
+
+[node name="Strips" type="Node3D" parent="." unique_id=792164434]
+
+[node name="S1" type="MeshInstance3D" parent="Strips" unique_id=1776150362]
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 6)
+cast_shadow = 0
+mesh = ExtResource("2_r530k")
+
+[node name="S2" type="MeshInstance3D" parent="Strips" unique_id=74790838]
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0)
+cast_shadow = 0
+mesh = ExtResource("2_r530k")
+
+[node name="S3" type="MeshInstance3D" parent="Strips" unique_id=595052231]
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -6)
+cast_shadow = 0
+mesh = ExtResource("2_r530k")
+
+[node name="S4" type="MeshInstance3D" parent="Strips" unique_id=817191479]
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -12)
+cast_shadow = 0
+mesh = ExtResource("2_r530k")

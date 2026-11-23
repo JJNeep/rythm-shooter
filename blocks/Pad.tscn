@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://blocks/materials/pad.tres" id="1_0i5kr"]
+[ext_resource type="BoxMesh" path="res://blocks/materials/lane_strip_mesh.tres" id="2_7n0qh"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_kerj0"]
+material = ExtResource("1_0i5kr")
+size = Vector3(10, 1, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_y2wd5"]
+size = Vector3(10, 1, 10)
+
+[node name="Pad" type="StaticBody3D" unique_id=362104633]
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=744165958]
+mesh = SubResource("BoxMesh_kerj0")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1806645382]
+shape = SubResource("BoxShape3D_y2wd5")
+
+[node name="Strips" type="Node3D" parent="." unique_id=854079320]
+
+[node name="S1" type="MeshInstance3D" parent="Strips" unique_id=1204135054]
+transform = Transform3D(9, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -1)
+cast_shadow = 0
+mesh = ExtResource("2_7n0qh")

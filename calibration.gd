@@ -30,6 +30,11 @@ var _hint_label: Label
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
+	# The Conductor is an autoload, so the track carries straight on through
+	# the scene change and plays over the click. Two grids at once is not
+	# something you can tap along to, and it would poison the measurement.
+	Conductor.stop()
+
 	_player = AudioStreamPlayer.new()
 	_player.stream = Sfx.click_track(BPM, 8, 4)
 	add_child(_player)
@@ -170,11 +175,15 @@ func _accept() -> void:
 	_result_label.text = "saved. positive means your audio runs late."
 
 
+## Back to the run, which restarts the Conductor from the top in its _ready.
+## This still pointed at the old procedural level.tscn, so calibrating used to
+## drop you into the wrong game.
 func _leave() -> void:
-	if ResourceLoader.exists("res://level.tscn"):
-		get_tree().change_scene_to_file("res://level.tscn")
-	else:
-		get_tree().quit()
+	for path in ["res://run_level.tscn", "res://level.tscn"]:
+		if ResourceLoader.exists(path):
+			get_tree().change_scene_to_file(path)
+			return
+	get_tree().quit()
 
 
 func _process(delta: float) -> void:

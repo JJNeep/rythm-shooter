@@ -1,0 +1,4 @@
+[gd_scene format=3]
+
+[node name="Start" type="Marker3D" unique_id=1381997479 groups=["level_start"]]
+gizmo_extents = 2.0

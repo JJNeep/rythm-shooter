@@ -97,8 +97,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _touch() -> void:
-	if _player and _player.has_method("take_damage"):
-		_player.call("take_damage", touch_damage)
+	Score.drain(Score.ENERGY_SWARM)
+	if _player and _player.has_method("on_hit"):
+		_player.call("on_hit")
 	# Consumed on contact, so a swarm trades itself for chip damage rather
 	# than grinding you down while standing on your head.
 	_die(Vector3.UP, 3)

@@ -9,6 +9,12 @@ extends Node3D
 
 signal shot_fired(grade: int, err_sec: float, did_hit: bool)
 signal weapon_changed(index: int, weapon: GunResource)
+signal charges_changed(amount: float, maximum: int)
+
+## Aiming steeper down than this means you are pointing at the floor on
+## purpose, so the soft lock gets out of the way and lets you rocket jump.
+## Value is sin(-38 degrees).
+const LOOK_DOWN_CUTOFF := -0.616
 
 enum Grade { PERFECT, GREAT, GOOD, WHIFF }
 
@@ -50,6 +56,10 @@ var _muzzles: Array[Node3D] = []
 ## between two deagle eighths -- a weapon-swap cancel, which is very much the
 ## genre and is being left in deliberately.
 var _last_slots: Array[float] = []
+## Fractional so charges can refill smoothly and the HUD can show a part-full
+## pip rather than snapping from empty to ready.
+var _charge: Array[float] = []
+var _prev_beat: float = 0.0
 var _pending: bool = false
 var _pending_at: float = 0.0
 var _pending_err: float = 0.0
@@ -85,6 +95,9 @@ func _ready() -> void:
 	_muzzles.resize(weapons.size())
 	_last_slots.resize(weapons.size())
 	_last_slots.fill(-INF)
+	_charge.resize(weapons.size())
+	for i in weapons.size():
+		_charge[i] = float(weapons[i].charges)
 
 	for i in weapons.size():
 		if weapons[i].weapon_kind == GunResource.Kind.ROCKET:
@@ -121,6 +134,7 @@ func swap_to(index: int) -> void:
 	# Same sample, dropped an octave: cheap way to make the launcher sound heavy.
 	_audio.pitch_scale = 0.62 if current_gun.weapon_kind == GunResource.Kind.ROCKET else 1.0
 	weapon_changed.emit(weapon_index, current_gun)
+	charges_changed.emit(charge(), current_gun.charges)
 
 
 func next_weapon(step: int = 1) -> void:
@@ -172,7 +186,34 @@ func _build_launcher(ref_muzzle: Node3D) -> Node3D:
 	return root
 
 
+func charge() -> float:
+	return _charge[weapon_index] if weapon_index < _charge.size() else 0.0
+
+
+## Charges regenerate against the BEAT clock, not wall time, so the launcher
+## refills in bars. "One rocket per bar, bank two" is a rhythm you can plan
+## around; "one rocket every 1.7 seconds" is not.
+func _regen_charges() -> void:
+	if not Conductor.running:
+		return
+	var b := Conductor.beat_pos()
+	var step := b - _prev_beat
+	_prev_beat = b
+	if step <= 0.0 or step > 8.0:
+		return                              # song restarted or a huge hitch
+
+	for i in weapons.size():
+		var w: GunResource = weapons[i]
+		if w.charges <= 0 or w.reload_beats <= 0.0:
+			continue
+		if _charge[i] < float(w.charges):
+			_charge[i] = minf(_charge[i] + step / w.reload_beats, float(w.charges))
+			if i == weapon_index:
+				charges_changed.emit(_charge[i], w.charges)
+
+
 func _process(_delta: float) -> void:
+	_regen_charges()
 	locked_target = _find_target()
 
 	# An early shot is held until the beat actually arrives. Timed against the
@@ -194,6 +235,8 @@ func try_shoot(held: bool = false) -> void:
 		return
 	if not current_gun.infinite_ammo and current_ammo <= 0:
 		return
+	if current_gun.charges > 0 and _charge[weapon_index] < 1.0:
+		return                                  # launcher still reloading
 	if _pending:
 		return
 
@@ -257,6 +300,9 @@ func _grade_of(err_abs: float, w: Vector3) -> Grade:
 func _fire(err_sec: float, on_beat: bool = true) -> void:
 	if not current_gun.infinite_ammo:
 		current_ammo -= 1
+	if current_gun.charges > 0:
+		_charge[weapon_index] = maxf(_charge[weapon_index] - 1.0, 0.0)
+		charges_changed.emit(_charge[weapon_index], current_gun.charges)
 
 	var w := _windows()
 	var grade := _grade_of(absf(err_sec), w)
@@ -348,6 +394,7 @@ func _launch_rocket(from: Vector3, dir: Vector3, grade: int,
 	if world == null:
 		return
 	var r := Rocket.new()
+	r.self_knockback = current_gun.self_knockback
 	world.add_child(r)
 	# launch() after add_child, so it can orient itself in world space.
 	r.launch(from, dir, current_gun.projectile_speed, current_gun.blast_radius,
@@ -378,6 +425,13 @@ func _find_target() -> Node3D:
 		return null
 
 	var fwd := -cam.global_basis.z
+
+	# Pointing steeply at the floor is how you say "I am rocket jumping", so
+	# the soft lock has to let go -- otherwise it would helpfully redirect your
+	# launch at a gunner across the room and you would never get off the ground.
+	if fwd.y < LOOK_DOWN_CUTOFF:
+		return null
+
 	var cos_lim := cos(deg_to_rad(current_gun.lock_angle_deg))
 	var space := get_world_3d().direct_space_state
 	var excl := _exclusions()
