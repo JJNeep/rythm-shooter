@@ -109,7 +109,7 @@ func _ready() -> void:
 	_hint_label = _make_label(root, 15, HORIZONTAL_ALIGNMENT_CENTER)
 	_anchor(_hint_label, 0.0, 1.0, 1.0, 1.0, 0, -32, 0, -10)
 	_hint_label.modulate.a = 0.5
-	_hint_label.text = "WASD  ·  SHIFT dash  ·  CLICK on the beat  ·  1/2 weapon  ·  LOOK DOWN + rocket to launch  ·  F fix timing  ·  C calibrate  ·  P practice  ·  R restart"
+	_hint_label.text = "WASD  ·  SHIFT dash  ·  CLICK on the beat  ·  1/2 weapon  ·  LOOK DOWN + rocket to launch  ·  F fix timing  ·  C calibrate  ·  P practice  ·  R restart  ·  F11 window"
 
 	# --- finish tally, hidden until the run ends ---
 	# Sized explicitly and laid out by hand rather than with a VBoxContainer:

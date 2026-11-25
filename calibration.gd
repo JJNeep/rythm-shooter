@@ -96,6 +96,10 @@ func _input(event: InputEvent) -> void:
 
 	if not (event is InputEventKey) or not event.is_pressed() or event.is_echo():
 		return
+	# alt+enter is the global fullscreen toggle. Without this it would land on
+	# ENTER below and save the offset instead.
+	if (event as InputEventKey).alt_pressed:
+		return
 	match (event as InputEventKey).physical_keycode:
 		KEY_SPACE:
 			_tap()
