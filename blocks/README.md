@@ -64,10 +64,10 @@ to go. Select the level root and read `report`, or look at the readout floating
 over the start line:
 
 ```
-SAM WAITIN - AFTERMATH   40.4s   140 BPM   93 beats   (first 40s of 182s)
-level     498 m    start +30  to  finish -468
-wall      12.32 m/s   =  88% of top speed
-sprint    35.6s flat out    slack +4.8s
+SAM WAITIN - AFTERMATH   84.3s   140 BPM   196 beats   (first 84s of 182s)
+level     1050 m    start +30  to  finish -1020
+wall      12.45 m/s   =  89% of top speed
+sprint    75.0s flat out    slack +9.3s
 verdict   tough but fair
 ```
 
@@ -75,12 +75,31 @@ verdict   tough but fair
 0 means all of it. Shortening a level is that one number plus moving the
 finish — never a re-chart.
 
-Set it to a **break in the music**, not a round number. Aftermath drops out at
-40.41s (beat 93.5) and stays quiet for two and a half seconds, so that is where
-its level ends. Crossing the line does not cut the track: it plays on to that
-point and washes out through a reverb there, so the tally assembles over the
-last of the music and then the break. A good run finishes several seconds early
-— that early arrival is what the slack is for — and still gets the same outro.
+Set it to an **edge in the music**, not a round number. Aftermath breaks down
+from 69.5s, thinning to near silence, and the drop lands on beat 197. The level
+ends on **bar 50 (beat 196, 84.34s)**, the last edge in that silence — so the
+contract lands the finish line on bar 50 too, exactly, and the level is 49 bars
+long. The other candidate is the shorter break at 40.41s (beat 93.5).
+
+Crossing the line does not cut the track: it plays on to `level_seconds` and
+stops there. Because Aftermath's end point is the bottom of a fifteen-second
+decay the artist already wrote, what you hear is the song running itself out
+while the tally goes up. There is nothing left for the game to add, so it adds
+nothing — 0.12s of fade, just enough not to click.
+
+A good run crosses the line several seconds early; that early arrival is what
+the slack is, and it gets the same ending. Dying instead switches the music off
+over 0.7s, a filter closing rather than a fade.
+
+Two things were tried here and were worse, so don't reach for them again. A
+reverb tail had nothing to ring at a break in the music, and smeared whatever
+followed the break into a wash. Seeking to the track's own last bars jumped
+**+36 dB** out of that silence, because this track does not wind down at the
+end — it plays flat out and stops at 181.6s. The lesson generalises: pick an
+end point where the music has already resolved, then leave it alone.
+
+The run also ends the player: no movement, no camera, and the mouse comes back
+so the tally can be read.
 
 **Slack** is the whole budget for climbs, fights and mistakes. Below about 55%
 the wall cannot catch anyone; above about 95% one slip ends the run.

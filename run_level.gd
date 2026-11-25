@@ -135,7 +135,11 @@ func _fail(title: String, sub: String) -> void:
 	state = State.FAILED
 	_pursuit.disarm()
 	_hud.set_danger(0.0)
+	# A death gets the track switched off, not the song's ending -- that is the
+	# reward for reaching the line.
 	Conductor.fade_out()
+	if _player:
+		_player.freeze()
 	_hud.show_banner(title, "%s  ·  R to restart" % sub)
 
 
@@ -144,6 +148,8 @@ func _finish() -> void:
 	_pursuit.disarm()
 	_hud.set_danger(0.0)
 	_finish_time = Conductor.clock()
+	if _player:
+		_player.freeze()
 	# The music is deliberately NOT cut here. A good run crosses the line
 	# several seconds early -- that early arrival is what the slack is for --
 	# and washing the track out mid-phrase at whatever second you happened to
@@ -178,12 +184,13 @@ func _finish() -> void:
 
 func _process(_delta: float) -> void:
 	# The outro. After the line the track carries on to the end of the level's
-	# slice -- level_seconds is set to the moment the music drops out -- and
-	# washes out into that break while the tally is still assembling. Cross the
-	# line late and the wash is immediate, which is the same thing.
+	# slice and stops there. level_seconds is a break in the music, and for
+	# Aftermath it is the bottom of a long decay, so what the player hears is
+	# the song running itself out while the tally goes up. Cross the line late
+	# and it stops at once, which is the same thing.
 	if state == State.FINISHED and Conductor.running \
 			and Conductor.clock() >= _level.song_seconds():
-		Conductor.fade_out()
+		Conductor.fade_out(Conductor.STOP_SECONDS)
 
 	if _player == null or _level == null or state != State.RUNNING:
 		return

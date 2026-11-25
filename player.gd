@@ -22,6 +22,9 @@ const MAX_FALL := 40.0        # terminal velocity, so a long drop stays readable
 ## miss drains far faster than a hit refills -- is what turns clicking into a
 ## decision instead of a reflex.
 var dead := false
+## Set once the run has ended. Harder than `dead`: no movement at all, and the
+## camera stops with it.
+var frozen := false
 
 var _cam_base_y := 0.0
 var _dash_left := 0.0
@@ -49,7 +52,20 @@ func _ready() -> void:
 
 
 func _on_run_failed() -> void:
+	freeze()
+
+
+## The run is over, win or lose. Stop dead: no input, no momentum, and the
+## mouse comes back so the tally can be read without the camera swinging about
+## or the player wandering off the finish platform while the score goes up.
+func freeze() -> void:
+	if frozen:
+		return
+	frozen = true
 	dead = true
+	_dash_left = 0.0
+	velocity = Vector3.ZERO
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -61,7 +77,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if not frozen and event is InputEventMouseMotion \
+			and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var mm := event as InputEventMouseMotion
 		rotate_y(-mm.relative.x * mouse_sensitivity)
 		head.rotate_x(-mm.relative.y * mouse_sensitivity)
@@ -182,6 +199,20 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if frozen:
+		# Gravity still applies until the feet are down, so crossing the line
+		# in mid-air sets you on the platform instead of leaving you hanging
+		# there. Everything horizontal is gone, so you land where you crossed.
+		velocity.x = 0.0
+		velocity.z = 0.0
+		if is_on_floor():
+			velocity.y = 0.0
+		else:
+			velocity += get_gravity() * delta
+			velocity.y = maxf(velocity.y, -MAX_FALL)
+		move_and_slide()
+		return
+
 	var grounded := is_on_floor()
 
 	if not grounded:

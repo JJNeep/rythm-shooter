@@ -31,17 +31,33 @@ var loop: bool = false
 ## get_output_latency() will catch for you.
 var user_offset: float = 0.0
 
-## A bus of the game's own with a reverb on it, so a run can end on a tail
-## instead of a cut. Built here rather than shipped as a bus layout file: the
-## project has never had one, and a single bus is not worth the file.
+## A bus of the game's own, so the music can be shut off under control. Built
+## here rather than shipped as a bus layout file: the project has never had one,
+## and a single bus is not worth the file.
 const BUS := "Music"
-const FADE_SECONDS := 3.4
+
+## Switching the track off after a death. Short on purpose: the music is
+## mid-phrase and loud, and a long tail over a dense mix is a smear.
+const FADE_SECONDS := 0.7
+
+## Ending a level that was won.
+##
+## Levels end on a break in the music, and Aftermath's is the bottom of a
+## fifteen-second decay the artist already wrote -- it is at -40dB by the time
+## the finish line arrives. So there is nothing left to fade, resolve or wash:
+## the song has ended itself, and all this has to do is not click.
+##
+## Two things were tried here and were worse. A reverb tail had nothing to ring
+## and smeared the drop that follows the break into it. Seeking to the track's
+## own last bars jumped +36dB out of that silence, because this track does not
+## wind down at the end -- it plays flat out and stops.
+const STOP_SECONDS := 0.12
 
 var _player: AudioStreamPlayer
 var _last_clock: float = 0.0
 var _next_beat: int = 0
 var _bus: int = 0
-var _reverb: AudioEffectReverb
+var _filter: AudioEffectLowPassFilter
 var _fading: bool = false
 var _fade_tween: Tween
 
@@ -66,15 +82,14 @@ func _make_bus() -> void:
 		AudioServer.add_bus(_bus)
 		AudioServer.set_bus_name(_bus, BUS)
 		AudioServer.set_bus_send(_bus, "Master")
-	_reverb = AudioEffectReverb.new()
-	_reverb.room_size = 0.9
-	_reverb.damping = 0.18
-	_reverb.spread = 1.0
-	_reverb.predelay_msec = 90.0
-	# Dry at rest: the track must sound exactly as it did until a run ends.
-	_reverb.wet = 0.0
-	_reverb.dry = 1.0
-	AudioServer.add_bus_effect(_bus, _reverb)
+	# A filter, not a reverb. Reverb was the wrong instrument here: the points
+	# worth ending a level on are breaks in the music, so the tail had nothing
+	# to resolve and instead smeared whatever came after the break into a wash.
+	# Closing the top end down sounds like the track being switched off, which
+	# is what it is. Wide open at rest, so nothing is coloured during a run.
+	_filter = AudioEffectLowPassFilter.new()
+	_filter.cutoff_hz = 20500.0
+	AudioServer.add_bus_effect(_bus, _filter)
 
 
 ## A run is one song, so by default the end of the track ends the clock and
@@ -121,48 +136,37 @@ func _kill_fade() -> void:
 		_fade_tween.kill()
 	_fade_tween = null
 	_fading = false
-	_dry()
+	_open()
 
 
-## Wash the track out rather than cutting it: the reverb comes up as the level
-## comes down, so the last thing you hear is the tail of the music over the
-## tally. Most levels use a slice of their song and stop long before the track
-## would, which without this ends a run on an audible chop.
-##
-## The clock keeps running through the fade on purpose -- the tally staggers
-## itself on half beats, and it should assemble in time with what is still
-## sounding.
+## Switch the track off: the top end closes down as the level falls. Called
+## with STOP_SECONDS when a level ends, and with the default after a death.
 func fade_out(seconds: float = FADE_SECONDS) -> void:
 	if _fading or not _player.playing:
 		return
 	_fading = true
-	_fade_tween = create_tween().set_parallel(true)
-	_fade_tween.tween_method(_set_wet, 0.0, 0.9, seconds * 0.4)
-	_fade_tween.tween_method(_set_level, 0.0, -42.0, seconds) \
-		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-	_fade_tween.chain().tween_callback(_end_fade)
+	_fade_tween = create_tween()
+	_fade_tween.tween_method(_set_closed, 0.0, 1.0, seconds)
+	_fade_tween.tween_callback(_end_fade)
 
 
-func _set_wet(v: float) -> void:
-	if _reverb:
-		_reverb.wet = v
-		_reverb.dry = 1.0 - v * 0.75
-
-
-func _set_level(db: float) -> void:
-	AudioServer.set_bus_volume_db(_bus, db)
+## 0 is wide open, 1 is shut. Cutoff moves in octaves rather than hertz, so the
+## sweep sounds even rather than doing nothing and then everything at the end.
+func _set_closed(k: float) -> void:
+	if _filter:
+		_filter.cutoff_hz = 20500.0 * pow(0.015, clampf(k, 0.0, 1.0))
+	AudioServer.set_bus_volume_db(_bus, -48.0 * k * k)
 
 
 func _end_fade() -> void:
 	running = false
 	_player.stop()
-	_dry()
+	_open()
 	_fading = false
 
 
-func _dry() -> void:
-	AudioServer.set_bus_volume_db(_bus, 0.0)
-	_set_wet(0.0)
+func _open() -> void:
+	_set_closed(0.0)
 
 
 ## Monotonic, latency-compensated song position in seconds.
