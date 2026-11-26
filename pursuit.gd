@@ -29,6 +29,7 @@ var _mesh: MeshInstance3D
 var _light: OmniLight3D
 var _armed := true
 var _stopped := false
+var _manual_speed := 0.0
 
 
 func _ready() -> void:
@@ -94,6 +95,18 @@ func bind(player: Node3D, level: LevelRoot) -> void:
 	global_position = Vector3(0.0, 0.0, wall_z)
 
 
+## A plain chase at a fixed speed from a fixed place, for the tutorial.
+##
+## The real wall is the song's playhead, which only means anything for a run
+## that begins when the song does. A tutorial arrives at its chase several
+## minutes in, and there the wall is just a wall.
+func chase_from(player: Node3D, z: float, speed: float) -> void:
+	_player = player
+	_manual_speed = maxf(speed, 0.1)
+	wall_z = z
+	global_position = Vector3(0.0, 0.0, z)
+
+
 ## Stops the wall where it stands and fades it out.
 ##
 ## Without this it kept advancing after the run ended, caught up with the
@@ -110,11 +123,16 @@ func disarm() -> void:
 	tw.tween_callback(hide)
 
 
-func _process(_delta: float) -> void:
-	if _stopped or _level == null or not Conductor.running:
+func _process(delta: float) -> void:
+	if _stopped or not Conductor.running:
 		return
 
-	wall_z = _level.wall_z(Conductor.clock())
+	if _manual_speed > 0.0:
+		wall_z -= _manual_speed * delta
+	elif _level != null:
+		wall_z = _level.wall_z(Conductor.clock())
+	else:
+		return
 	global_position = Vector3(0.0, 0.0, wall_z)
 
 	var pulse := pow(1.0 - Conductor.beat_phase(), 3.0)

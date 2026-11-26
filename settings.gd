@@ -28,6 +28,11 @@ var calibrated: bool = false
 ## say so every launch.
 var fullscreen: bool = true
 
+## Set once the tutorial has been finished. Only used to decide whether to
+## mention it on the start banner -- it is never forced on anyone, and T opens
+## it again whenever you like.
+var tutorial_done: bool = false
+
 
 func _ready() -> void:
 	load_settings()
@@ -95,6 +100,7 @@ func load_settings() -> void:
 		audio_offset_ms = float(cfg.get_value("audio", "offset_ms", 0.0))
 		calibrated = bool(cfg.get_value("audio", "calibrated", false))
 		fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
+		tutorial_done = bool(cfg.get_value("play", "tutorial_done", false))
 	_apply()
 	# Applied without saving: a plain launch should not rewrite the file, and
 	# this only touches the window when the saved choice differs from how the
@@ -107,7 +113,15 @@ func save_settings() -> void:
 	cfg.set_value("audio", "offset_ms", audio_offset_ms)
 	cfg.set_value("audio", "calibrated", calibrated)
 	cfg.set_value("video", "fullscreen", fullscreen)
+	cfg.set_value("play", "tutorial_done", tutorial_done)
 	cfg.save(PATH)
+
+
+func set_tutorial_done() -> void:
+	if tutorial_done:
+		return
+	tutorial_done = true
+	save_settings()
 
 
 func set_offset_ms(ms: float, mark_calibrated: bool = true) -> void:

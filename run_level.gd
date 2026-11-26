@@ -70,7 +70,11 @@ func _ready() -> void:
 
 	Score.reset()
 	Conductor.start(load(SONG_PATH))
-	if Settings.calibrated:
+	# Offered, never forced: the tutorial is a scene you can walk into and leave
+	# at any point, and it is only mentioned until it has been finished once.
+	if not Settings.tutorial_done:
+		_hud.show_banner("GO", "new here? press T for the tutorial  ·  R to restart")
+	elif Settings.calibrated:
 		_hud.show_banner("GO", "stay ahead of the wall  ·  2 to launch yourself")
 	else:
 		# Uncalibrated audio reads exactly like bad rhythm, so say so up front

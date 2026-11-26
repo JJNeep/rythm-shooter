@@ -1,5 +1,33 @@
 # Level design
 
+## The tutorial
+
+`levels/tutorial.tscn`, refereed by `tutorial.gd`. Press **T** from a run, or
+ENTER from the tutorial to leave for one.
+
+It teaches by getting in the way. Each station is an obstacle that exactly one
+mechanic clears, and the prompt only ever says which button and how its timing
+works — never what you need, because the obstacle has already said that:
+
+| Station | What blocks you | What it teaches |
+|---|---|---|
+| 1 Move | nothing | WASD, and that lane strips are one beat apart |
+| 2 Shoot | a gate that opens after 4 clean hits | the gun fires only on the beat |
+| 3 Jump | a 1.6 m step, then a 7 m hole | SPACE, and the energy bar |
+| 4 Dash | a **21 m** hole — a jump reaches 17.7 m | SHIFT, and that dashing on the beat doubles its reach |
+| 5 Rocket | a platform **8 m** up — a jump clears 1.96 m | fire at your own feet to launch |
+| 6 Gunners | two gunners firing on alternate beats | the two-beat telegraph |
+| 7 Wall | the wall, chasing at 9.6 m/s | the wall is the song's playhead |
+
+Every distance there is checked against the reach table below, so no station
+can dead-end. Nothing in it can fail either: energy never ends the run, falling
+puts you back at the top of the station you are on, being caught by the wall
+says so and resets the sprint, and ENTER leaves at any point.
+
+If a player whiffs six shots at station 2, the goal line offers **F** — late
+audio reads exactly like no rhythm, and they will believe the second
+explanation unless you offer the first.
+
 Open `levels/aftermath.tscn`. Drag any scene from this folder into the 3D
 viewport. Save, press **F5**.
 

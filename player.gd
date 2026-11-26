@@ -117,6 +117,8 @@ func _input(event: InputEvent) -> void:
 				_restart()
 			KEY_C:
 				get_tree().change_scene_to_file("res://calibration.tscn")
+			KEY_T:
+				get_tree().change_scene_to_file("res://tutorial.tscn")
 			KEY_F:
 				_fix_timing()
 

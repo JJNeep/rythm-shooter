@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://tutorial.gd" id="1_tut"]
+[ext_resource type="PackedScene" uid="uid://0bxxtdrmcvm5" path="res://player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://levels/tutorial.tscn" id="3_level"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat_tut"]
+sky_top_color = Color(0.03, 0.03, 0.07, 1)
+sky_horizon_color = Color(0.15, 0.08, 0.21, 1)
+ground_bottom_color = Color(0.01, 0.01, 0.03, 1)
+ground_horizon_color = Color(0.15, 0.08, 0.21, 1)
+
+[sub_resource type="Sky" id="Sky_tut"]
+sky_material = SubResource("SkyMat_tut")
+
+[sub_resource type="Environment" id="Env_tut"]
+background_mode = 2
+sky = SubResource("Sky_tut")
+ambient_light_source = 2
+ambient_light_color = Color(0.44, 0.40, 0.56, 1)
+ambient_light_energy = 0.33
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.75
+glow_bloom = 0.22
+fog_enabled = true
+fog_light_color = Color(0.12, 0.08, 0.18, 1)
+fog_density = 0.01
+
+[node name="Tutorial" type="Node3D" groups=["world"]]
+script = ExtResource("1_tut")
+level_scene = ExtResource("3_level")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_tut")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 18, 0)
+light_energy = 0.3
+shadow_enabled = true
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -6)

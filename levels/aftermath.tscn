@@ -1,4 +1,4 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dbhm2r23kmvmd"]
 
 [ext_resource type="Material" path="res://blocks/materials/finish.tres" id="3_uv1gp"]
 [ext_resource type="Material" path="res://blocks/materials/finish_glass.tres" id="4_q5wl2"]
@@ -6,12 +6,10 @@
 [ext_resource type="BoxMesh" path="res://blocks/materials/lane_strip_mesh.tres" id="6_d5igy"]
 [ext_resource type="Material" path="res://blocks/materials/wall.tres" id="7_qddiv"]
 [ext_resource type="PackedScene" path="res://target.tscn" id="8_otgox"]
-[ext_resource type="Script" path="res://target.gd" id="9_v208l"]
 [ext_resource type="Material" path="res://blocks/materials/raised.tres" id="10_ltk1j"]
 [ext_resource type="PackedScene" path="res://ranged_enemy.tscn" id="11_jn7vi"]
-[ext_resource type="Script" path="res://ranged_enemy.gd" id="12_4i84y"]
 [ext_resource type="Material" path="res://blocks/materials/bridge.tres" id="13_75cmr"]
-[ext_resource type="Script" path="res://blocks/level_root.gd" id="root"]
+[ext_resource type="Script" uid="uid://cidomp8xa3hge" path="res://blocks/level_root.gd" id="root"]
 [ext_resource type="Resource" path="res://Aftermath.tres" id="song"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_2w6sy"]
@@ -398,21 +396,17 @@ mesh = SubResource("BoxMesh_ovqro")
 [node name="Collision" type="CollisionShape3D" parent="S01_Opening/EndWall" unique_id=565249995]
 shape = SubResource("BoxShape3D_4xd2q")
 
-[node name="Target" type="StaticBody3D" parent="S01_Opening" unique_id=795714291 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target" parent="S01_Opening" unique_id=795714291 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0.9, -22)
-script = ExtResource("9_v208l")
 
-[node name="Target2" type="StaticBody3D" parent="S01_Opening" unique_id=407064456 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target2" parent="S01_Opening" unique_id=407064456 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.9, -34)
-script = ExtResource("9_v208l")
 
-[node name="Target3" type="StaticBody3D" parent="S01_Opening" unique_id=2101443874 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target3" parent="S01_Opening" unique_id=2101443874 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.9, -48)
-script = ExtResource("9_v208l")
 
-[node name="Target4" type="StaticBody3D" parent="S01_Opening" unique_id=546197363 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target4" parent="S01_Opening" unique_id=546197363 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.9, -60)
-script = ExtResource("9_v208l")
 
 [node name="S02_SteppingChasm" type="Node3D" parent="." unique_id=1766806970]
 
@@ -434,9 +428,8 @@ mesh = SubResource("BoxMesh_xyonw")
 [node name="Collision" type="CollisionShape3D" parent="S02_SteppingChasm/IslandB" unique_id=528817100]
 shape = SubResource("BoxShape3D_sas5b")
 
-[node name="Gunner" type="StaticBody3D" parent="S02_SteppingChasm" unique_id=1309154721 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S02_SteppingChasm" unique_id=1309154721 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -106)
-script = ExtResource("12_4i84y")
 
 [node name="S03_Climb" type="Node3D" parent="." unique_id=2071279988]
 
@@ -510,14 +503,12 @@ mesh = SubResource("BoxMesh_1mn4x")
 [node name="Collision" type="CollisionShape3D" parent="S03_Climb/WallR" unique_id=236673975]
 shape = SubResource("BoxShape3D_fvx8y")
 
-[node name="Gunner" type="StaticBody3D" parent="S03_Climb" unique_id=807614083 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S03_Climb" unique_id=807614083 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 9.8, -128)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner2" type="StaticBody3D" parent="S03_Climb" unique_id=960860457 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S03_Climb" unique_id=960860457 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 9.8, -134)
-script = ExtResource("12_4i84y")
 
 [node name="S04_UpperGallery" type="Node3D" parent="." unique_id=1573098062]
 
@@ -673,27 +664,22 @@ transform = Transform3D(3, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32000002, -1)
 cast_shadow = 0
 mesh = ExtResource("6_d5igy")
 
-[node name="Gunner" type="StaticBody3D" parent="S04_UpperGallery" unique_id=460843282 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S04_UpperGallery" unique_id=460843282 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 15.1, -175)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner2" type="StaticBody3D" parent="S04_UpperGallery" unique_id=88005093 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S04_UpperGallery" unique_id=88005093 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 15.1, -200)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner3" type="StaticBody3D" parent="S04_UpperGallery" unique_id=729012176 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S04_UpperGallery" unique_id=729012176 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 15.1, -225)
-script = ExtResource("12_4i84y")
 offset = 1
 
-[node name="Target" type="StaticBody3D" parent="S04_UpperGallery" unique_id=1010508881 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target" parent="S04_UpperGallery" unique_id=1010508881 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.9, -215)
-script = ExtResource("9_v208l")
 
-[node name="Target2" type="StaticBody3D" parent="S04_UpperGallery" unique_id=264967243 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target2" parent="S04_UpperGallery" unique_id=264967243 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.9, -236)
-script = ExtResource("9_v208l")
 
 [node name="S05_Drop" type="Node3D" parent="." unique_id=225443199]
 
@@ -878,26 +864,22 @@ mesh = SubResource("BoxMesh_j8nsp")
 [node name="Collision" type="CollisionShape3D" parent="S06_PillarRun/PillarD" unique_id=2118272162]
 shape = SubResource("BoxShape3D_oi7ca")
 
-[node name="Gunner" type="StaticBody3D" parent="S06_PillarRun" unique_id=1909937101 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S06_PillarRun" unique_id=1909937101 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 6.8, -308)
-script = ExtResource("12_4i84y")
 period = 3
 
-[node name="Gunner2" type="StaticBody3D" parent="S06_PillarRun" unique_id=979092196 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S06_PillarRun" unique_id=979092196 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 7.8, -324)
-script = ExtResource("12_4i84y")
 period = 3
 offset = 1
 
-[node name="Gunner3" type="StaticBody3D" parent="S06_PillarRun" unique_id=1824977427 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S06_PillarRun" unique_id=1824977427 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 6.8, -342)
-script = ExtResource("12_4i84y")
 period = 3
 offset = 2
 
-[node name="Gunner4" type="StaticBody3D" parent="S06_PillarRun" unique_id=1508021051 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner4" parent="S06_PillarRun" unique_id=1508021051 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 7.8, -358)
-script = ExtResource("12_4i84y")
 period = 3
 
 [node name="S07_Bridge" type="Node3D" parent="." unique_id=587419406]
@@ -991,18 +973,15 @@ mesh = SubResource("BoxMesh_okj5v")
 [node name="Collision" type="CollisionShape3D" parent="S07_Bridge/LedgeR" unique_id=2033210535]
 shape = SubResource("BoxShape3D_ril8x")
 
-[node name="Gunner" type="StaticBody3D" parent="S07_Bridge" unique_id=1748304257 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S07_Bridge" unique_id=1748304257 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -436)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner2" type="StaticBody3D" parent="S07_Bridge" unique_id=1303616500 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S07_Bridge" unique_id=1303616500 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 3.1, -384)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner3" type="StaticBody3D" parent="S07_Bridge" unique_id=932509054 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S07_Bridge" unique_id=932509054 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 3.1, -420)
-script = ExtResource("12_4i84y")
 offset = 1
 
 [node name="S08_Chasm" type="Node3D" parent="." unique_id=1995372603]
@@ -1149,31 +1128,25 @@ mesh = SubResource("BoxMesh_qddiv")
 [node name="Collision" type="CollisionShape3D" parent="S09_Shaft/WallR" unique_id=1995963521]
 shape = SubResource("BoxShape3D_otgox")
 
-[node name="Gunner" type="StaticBody3D" parent="S09_Shaft" unique_id=280620465 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S09_Shaft" unique_id=280620465 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 9.8, -482)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner2" type="StaticBody3D" parent="S09_Shaft" unique_id=371100138 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S09_Shaft" unique_id=371100138 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 18.8, -500)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner3" type="StaticBody3D" parent="S09_Shaft" unique_id=1245009919 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S09_Shaft" unique_id=1245009919 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 18.8, -530)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner4" type="StaticBody3D" parent="S09_Shaft" unique_id=1163462886 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner4" parent="S09_Shaft" unique_id=1163462886 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 18.8, -548)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Target" type="StaticBody3D" parent="S09_Shaft" unique_id=1012088253 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target" parent="S09_Shaft" unique_id=1012088253 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.9, -520)
-script = ExtResource("9_v208l")
 
-[node name="Target2" type="StaticBody3D" parent="S09_Shaft" unique_id=1126359515 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target2" parent="S09_Shaft" unique_id=1126359515 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.9, -540)
-script = ExtResource("9_v208l")
 
 [node name="S10_Catwalks" type="Node3D" parent="." unique_id=1204882496]
 
@@ -1399,23 +1372,19 @@ mesh = SubResource("BoxMesh_jn7vi")
 [node name="Collision" type="CollisionShape3D" parent="S10_Catwalks/Post4" unique_id=756180770]
 shape = SubResource("BoxShape3D_4i84y")
 
-[node name="Gunner" type="StaticBody3D" parent="S10_Catwalks" unique_id=1685074803 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S10_Catwalks" unique_id=1685074803 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 18.8, -584)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner2" type="StaticBody3D" parent="S10_Catwalks" unique_id=1107472236 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S10_Catwalks" unique_id=1107472236 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 18.8, -603)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner3" type="StaticBody3D" parent="S10_Catwalks" unique_id=2085020947 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S10_Catwalks" unique_id=2085020947 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 18.8, -641)
-script = ExtResource("12_4i84y")
 offset = 1
 
-[node name="Gunner4" type="StaticBody3D" parent="S10_Catwalks" unique_id=948350475 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner4" parent="S10_Catwalks" unique_id=948350475 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 18.8, -660)
-script = ExtResource("12_4i84y")
 offset = 3
 
 [node name="S11_Gauntlet" type="Node3D" parent="." unique_id=123437756]
@@ -1583,45 +1552,36 @@ mesh = SubResource("BoxMesh_guvqe")
 [node name="Collision" type="CollisionShape3D" parent="S11_Gauntlet/GunLedge6" unique_id=2138205961]
 shape = SubResource("BoxShape3D_m8y1w")
 
-[node name="Gunner" type="StaticBody3D" parent="S11_Gauntlet" unique_id=2088769017 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S11_Gauntlet" unique_id=2088769017 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3.8, -712)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner2" type="StaticBody3D" parent="S11_Gauntlet" unique_id=1977812925 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S11_Gauntlet" unique_id=1977812925 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3.8, -726)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner3" type="StaticBody3D" parent="S11_Gauntlet" unique_id=349492954 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S11_Gauntlet" unique_id=349492954 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3.8, -740)
-script = ExtResource("12_4i84y")
 offset = 1
 
-[node name="Gunner4" type="StaticBody3D" parent="S11_Gauntlet" unique_id=1872188420 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner4" parent="S11_Gauntlet" unique_id=1872188420 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3.8, -754)
-script = ExtResource("12_4i84y")
 offset = 3
 
-[node name="Gunner5" type="StaticBody3D" parent="S11_Gauntlet" unique_id=522416737 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner5" parent="S11_Gauntlet" unique_id=522416737 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3.8, -768)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner6" type="StaticBody3D" parent="S11_Gauntlet" unique_id=216242346 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner6" parent="S11_Gauntlet" unique_id=216242346 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3.8, -782)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Target" type="StaticBody3D" parent="S11_Gauntlet" unique_id=1487689370 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target" parent="S11_Gauntlet" unique_id=1487689370 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -718)
-script = ExtResource("9_v208l")
 
-[node name="Target2" type="StaticBody3D" parent="S11_Gauntlet" unique_id=1102236918 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target2" parent="S11_Gauntlet" unique_id=1102236918 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.9, -748)
-script = ExtResource("9_v208l")
 
-[node name="Target3" type="StaticBody3D" parent="S11_Gauntlet" unique_id=2017763450 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target3" parent="S11_Gauntlet" unique_id=2017763450 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.9, -786)
-script = ExtResource("9_v208l")
 
 [node name="S12_Ramp" type="Node3D" parent="." unique_id=1445584950]
 
@@ -1740,32 +1700,26 @@ mesh = SubResource("BoxMesh_qhrtc")
 [node name="Collision" type="CollisionShape3D" parent="S12_Ramp/WallR" unique_id=972855586]
 shape = SubResource("BoxShape3D_36fin")
 
-[node name="Gunner" type="StaticBody3D" parent="S12_Ramp" unique_id=2015388893 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S12_Ramp" unique_id=2015388893 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 12.8, -834)
-script = ExtResource("12_4i84y")
 
-[node name="Gunner2" type="StaticBody3D" parent="S12_Ramp" unique_id=60610253 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S12_Ramp" unique_id=60610253 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 12.8, -852)
-script = ExtResource("12_4i84y")
 offset = 2
 
-[node name="Gunner3" type="StaticBody3D" parent="S12_Ramp" unique_id=1801385962 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S12_Ramp" unique_id=1801385962 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 12.8, -870)
-script = ExtResource("12_4i84y")
 offset = 1
 
-[node name="Gunner4" type="StaticBody3D" parent="S12_Ramp" unique_id=765135157 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner4" parent="S12_Ramp" unique_id=765135157 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 12.8, -884)
-script = ExtResource("12_4i84y")
 offset = 3
 
-[node name="Target" type="StaticBody3D" parent="S12_Ramp" unique_id=844701083 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target" parent="S12_Ramp" unique_id=844701083 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.9, -844)
-script = ExtResource("9_v208l")
 
-[node name="Target2" type="StaticBody3D" parent="S12_Ramp" unique_id=10231560 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target2" parent="S12_Ramp" unique_id=10231560 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.9, -862)
-script = ExtResource("9_v208l")
 
 [node name="S13_Mill" type="Node3D" parent="." unique_id=1334762822]
 
@@ -1978,45 +1932,37 @@ mesh = SubResource("BoxMesh_1qeds")
 [node name="Collision" type="CollisionShape3D" parent="S13_Mill/Mill10" unique_id=1850100064]
 shape = SubResource("BoxShape3D_s3j11")
 
-[node name="Gunner" type="StaticBody3D" parent="S13_Mill" unique_id=1592628868 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S13_Mill" unique_id=1592628868 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 16.8, -898)
-script = ExtResource("12_4i84y")
 period = 3
 
-[node name="Gunner2" type="StaticBody3D" parent="S13_Mill" unique_id=1046758150 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner2" parent="S13_Mill" unique_id=1046758150 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 16.8, -928)
-script = ExtResource("12_4i84y")
 period = 3
 offset = 1
 
-[node name="Gunner3" type="StaticBody3D" parent="S13_Mill" unique_id=1419308755 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner3" parent="S13_Mill" unique_id=1419308755 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 16.8, -938)
-script = ExtResource("12_4i84y")
 period = 3
 offset = 2
 
-[node name="Gunner4" type="StaticBody3D" parent="S13_Mill" unique_id=469252906 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner4" parent="S13_Mill" unique_id=469252906 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 16.8, -968)
-script = ExtResource("12_4i84y")
 period = 3
 
-[node name="Gunner5" type="StaticBody3D" parent="S13_Mill" unique_id=497270612 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner5" parent="S13_Mill" unique_id=497270612 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 16.8, -988)
-script = ExtResource("12_4i84y")
 period = 3
 offset = 1
 
-[node name="Target" type="StaticBody3D" parent="S13_Mill" unique_id=848190290 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target" parent="S13_Mill" unique_id=848190290 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.9, -913)
-script = ExtResource("9_v208l")
 
-[node name="Target2" type="StaticBody3D" parent="S13_Mill" unique_id=1826856542 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target2" parent="S13_Mill" unique_id=1826856542 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.9, -953)
-script = ExtResource("9_v208l")
 
-[node name="Target3" type="StaticBody3D" parent="S13_Mill" unique_id=1308923971 groups=["enemy"] instance=ExtResource("8_otgox")]
+[node name="Target3" parent="S13_Mill" unique_id=1308923971 instance=ExtResource("8_otgox")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.9, -983)
-script = ExtResource("9_v208l")
 
 [node name="S14_Landing" type="Node3D" parent="." unique_id=924578978]
 
@@ -2041,9 +1987,8 @@ transform = Transform3D(11, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -6)
 cast_shadow = 0
 mesh = ExtResource("6_d5igy")
 
-[node name="Gunner" type="StaticBody3D" parent="S14_Landing" unique_id=166241990 groups=["enemy", "gunner"] instance=ExtResource("11_jn7vi")]
+[node name="Gunner" parent="S14_Landing" unique_id=166241990 instance=ExtResource("11_jn7vi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 12.8, -1018)
-script = ExtResource("12_4i84y")
 
 [node name="LaneLights" type="Node3D" parent="." unique_id=2046814543]
 
